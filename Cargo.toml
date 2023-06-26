@@ -1,0 +1,30 @@
+[package]
+name = "CK-567"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+winres = "0.1"
+[dependencies]
+aes = "0.8"
+ctr = "0.9"
+cipher = {version = "0.4.3", features=["block-padding"]}
+clap = "4.3.0"
+hex = "0.4.2"
+rust-embed="6.4.0"
+libaes = "*"
+rand = "*"
+base64 = "0.21.2"
+
+winapi = { version = "0.3.9",features = ["libloaderapi","minwinbase","rpc","winnls","heapapi","winuser", "winnt", "memoryapi","sysinfoapi"]}
+
+
+[profile.release]
+opt-level = "z"               # 使用最高级别的优化
+lto = true                    # 启用链接时优化
+codegen-units = 1             # 设置为1以降低编译时间
+panic = 'abort'               # 使用 "abort" 模式来处理 panic
+strip = "symbols"                 # 剥离所有符号，包括调试符号和未使用的符号
+overflow-checks = false       # 禁用溢出检查
