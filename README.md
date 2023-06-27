@@ -21,7 +21,7 @@ rust环境[https://www.rust-lang.org/learn/get-started]
 
 
 build exe需要
-**方案一:VisualStudio**
+**方案一:VisualStudio**<br/>
 
 先安装VisualStudio<br/>
 https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/ <br/>
@@ -31,7 +31,7 @@ rustup default nightly
 ```
 缺点 占用磁盘空间大,可以看下面方案<br/>
 
-**方案二:MinGW**
+**方案二:MinGW**<br/>
 
 先安装mingw<br/>
 https://osdn.net/projects/mingw/downloads/68260/mingw-get-setup.exe/ <br/>
