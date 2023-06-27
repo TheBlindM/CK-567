@@ -20,8 +20,8 @@ rust环境[https://www.rust-lang.org/learn/get-started]
 **C++环境**
 
 
-build exe需要
-**方案一:VisualStudio**<br/>
+build exe需要<br/>
+**方案一:VisualStudio**
 
 先安装VisualStudio<br/>
 https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/ <br/>
