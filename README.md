@@ -2,11 +2,18 @@
 	<h1>CK-567</h1>
 <h2>CK-567 强大的Anti-Virus对抗工具</h2>
 </div>
+<div align="center">
+<img src="./doc/ck.jpg"/>
+</div>
 
 ### 由遮天 项目组指导
-shellcode 格式目前只支持 raw
+
+shellcode **格式**
+
+- **raw**
 
 ### 使用
+
 ```
 
                  ▄████▄   ██ ▄█▀
@@ -22,13 +29,16 @@ shellcode 格式目前只支持 raw
 
 version:0.1
 ```
+
 需要 rust环境[https://www.rust-lang.org/learn/get-started]
 设置 nightly 环境
+
 ```
 rustup default nightly
 ```
 
 **加载器：**
+
 ```
                  ▄████▄   ██ ▄█▀
                 ▒██▀ ▀█   ██▄█▒
@@ -50,11 +60,13 @@ Usage: CK-567.exe shellcode -f <file> -n <name>
 
 For more information, try '--help'.
 ```
+
 ```
 CK-567.exe shellcode  -f=C:\Users\10431\Desktop\payload.bin  -n=a1
 ```
 
 **捆绑木马：**
+
 ```
 
                  ▄████▄   ██ ▄█▀
