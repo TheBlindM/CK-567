@@ -34,7 +34,7 @@ fn main() {
                 ░ ░      ░  ░
                 ░
 ");
-    println!("version:0.1");
+    println!("version:0.2");
 
     let matches = Command::new("ck567")
         .subcommands([
@@ -55,7 +55,7 @@ fn main() {
                 .required(true)
                 .help("木马文件路径")),
             Command::new("shellcode")
-                .about("捆绑exe")
+                .about("shellcode 加载器")
                 .arg(
                     Arg::new("file")
                         .short('f')
