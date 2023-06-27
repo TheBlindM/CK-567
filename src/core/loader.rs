@@ -115,7 +115,7 @@ pub fn complie() {
     println!("开始编译...");
     let mut cmd = Command::new("cmd")
         .arg("/c")
-        .arg("cd loader && cargo build -Z unstable-options --out-dir ../ --target x86_64-pc-windows-msvc  --release")
+        .arg("cd loader && cargo build -Z unstable-options --out-dir ../ --release")
         .spawn()
         .expect("编译失败！");
 
