@@ -22,6 +22,11 @@ shellcode 格式目前只支持 raw
 
 version:0.1
 ```
+需要 rust环境[https://www.rust-lang.org/learn/get-started]
+设置 nightly 环境
+```
+rustup default nightly
+```
 
 **加载器：**
 ```
