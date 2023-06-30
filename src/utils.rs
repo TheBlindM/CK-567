@@ -15,7 +15,7 @@ use rand::Rng;
 pub const RANDOM_AES_KEY: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
 
 
-pub fn aesEncrypt(plaintext: Vec<u8>) -> (String,String, Vec<u8>) {
+pub fn aesEncrypt(plaintext: &Vec<u8>) -> (String,String, Vec<u8>) {
     let mut rng = rand::thread_rng();
     let key: String = (0..16)
         .map(|_| unsafe {
@@ -30,7 +30,7 @@ pub fn aesEncrypt(plaintext: Vec<u8>) -> (String,String, Vec<u8>) {
         }).collect();
 
     let cipher = Cipher::new_128(key.as_bytes()[0..16].try_into().unwrap());
-    return (key, iv.clone(),cipher.cbc_encrypt(iv.clone().as_ref(), &plaintext));
+    return (key, iv.clone(),cipher.cbc_encrypt(iv.clone().as_ref(), plaintext));
 }
 
 pub fn aesDecrypt(key: String, iv: String, ciphertext: String) -> Vec<u8> {

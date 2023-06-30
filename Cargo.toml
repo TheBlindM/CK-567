@@ -17,7 +17,8 @@ rust-embed="6.4.0"
 libaes = "*"
 rand = "*"
 base64 = "0.21.2"
-
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
 winapi = { version = "0.3.9",features = ["libloaderapi","minwinbase","rpc","winnls","heapapi","winuser", "winnt", "memoryapi","sysinfoapi"]}
 
 
