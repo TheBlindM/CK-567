@@ -147,7 +147,7 @@ pub fn complie() {
         .expect("编译失败！");
 
     let status = cmd.wait();
-    let _ = remove_dir_all("loader2");
+    let _ = remove_dir_all("loader");
 }
 
 

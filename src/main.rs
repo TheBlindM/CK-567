@@ -76,7 +76,7 @@ fn main() {
             ).arg(
                 Arg::new("mouseMovementDetection")
                     .short('m')
-                    .help("反沙盒： 鼠标移动检测 如果当前计算机 鼠标没有移动过则不执行")
+                    .help("反沙盒：鼠标移动检测 默认true 如果当前计算机 鼠标没有移动过则不执行 （true/false）")
                     .required(false)
             )
         ]

@@ -58,7 +58,7 @@ rustup default nightly-x86_64-pc-windows-gnu
                 ░ ░      ░  ░
                 ░
 
-version:0.1
+version:0.3
 ```
 
 
@@ -76,18 +76,22 @@ version:0.1
                 ░ ░      ░  ░
                 ░
 
-version:0.1
-error: the following required arguments were not provided:
-  -f <file>
-  -n <name>
+version:0.3
+shellcode 加载器
 
-Usage: CK-567.exe shellcode -f <file> -n <name>
+Usage: CK-567.exe shellcode [OPTIONS] -f <file> -n <name>
 
-For more information, try '--help'.
+Options:
+  -f <file>                        shellcode 路径
+  -n <name>                        生成的exe 名称
+  -i <ico>                         exe ico
+  -t <opTime>                      反沙盒：计算机运⾏时间 默认3600s 单位:秒 如果当前计算机小于 该参数则不执行。 op-time<0则 不检测
+  -m <mouseMovementDetection>      反沙盒： 鼠标移动检测 默认true 如果当前计算机 鼠标没有移动过则不执行 （true/false）
+  -h, --help                       Print help
 ```
 
 ```
-CK-567.exe shellcode  -f=C:\Users\10431\Desktop\payload.bin  -n=a1
+CK-567.exe  shellcode -f=C:\Users\10431\Desktop\payload.bin -n=a10 -t=-1 -m=false
 ```
 
 **捆绑木马：**
